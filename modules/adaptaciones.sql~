@@ -1,0 +1,139 @@
+-- CREACION DE TABLAS
+
+-- TABLA de catalogos
+CREATE TABLE ktcm00t (
+   cdtabla char(12) not null,
+   cdelem varchar(6) not null,
+   dselem varchar(80) not null,
+   cdusuari varchar(12) not null,
+   programa varchar(40) not null,
+   tmstmp datetime not null,
+   primary key (cdtabla,cdelem)
+);
+
+-- TABLA de registro de actividad para gasto
+CREATE TABLE kexm00t (
+   id char(36) not null,
+   date_entered date not null,
+   status char(1) not null,
+   usuario char(12) not null,
+   programa varchar(40) not null,
+   tmstmp datetime not null,
+   primary key (id)
+);
+
+-- TABLA de registro de gastos
+CREATE TABLE kexm01t (
+   id char(36) not null,
+   consecutive int auto_increment,
+   date_expenditure date not null,
+   type_expenditure char(1) not null,
+   value float(13,2) not null,
+   is_iva char(1) not null,
+   status char(1) not null,
+   usuario char(12) not null,
+   programa varchar(40) not null,
+   tmstmp datetime not null,
+   primary key (id,consecutive)
+);
+
+-- TABLA de registro de notas asociadas a gastos
+CREATE TABLE kexm02t (
+   id char(36) not null,
+   consecutive_expenditure int not null,
+   consecutive_comment int auto_increment,
+   comment varchar(250) not null,
+   usuario char(12) not null,
+   programa varchar(40) not null,
+   tmstmp datetime not null,
+   primary key(id, consecutive_expenditure, consecutive_comment)
+);
+
+-- CREACION DE CONSULTAS.
+
+-- Extracción de tareas.
+CREATE VIEW tareas AS
+select A.id, assigned_user_id, modified_user_id, created_by, name, c_producto_c productos
+from tasks A inner join tasks_cstm B on A.id = B.id_c
+order by date_modified desc;
+
+-- Extracción de tareas asociadas a proyectos.
+CREATE VIEW tareas_proyecto AS
+select A.id, assigned_user_id, modified_user_id, created_by, name, c_producto_c productos
+from project_task A inner join project_task_cstm B on A.id = B.id_c
+order by date_modified desc;
+
+-- Extracción de reuniones.
+CREATE VIEW reuniones AS
+select A.id, assigned_user_id, modified_user_id, created_by, name, l_producto_c productos
+from meetings A inner join meetings_cstm B on A.id = B.id_c
+order by date_modified desc;
+
+-- Extracción de todas las actividades.
+CREATE VIEW actividades AS
+select ‘t’, id, assigned_user_id, modified_user_id, created_by, name, productos
+  from tareas
+UNION
+select ‘p’, id, assigned_user_id, modified_user_id, created_by, name, productos
+  from tareas_proyecto
+UNION
+select ‘m’, id, assigned_user_id, modified_user_id, created_by, name, productos
+  from reuniones order by name;
+
+-- Extracción de actividades registradas para gastos
+CREATE VIEW cabeceras AS
+select A.id, assigned_user_id, name, productos
+  from kexm00t A inner join actividades B on A.id = B.id;
+
+-- Extracción de gastos relacionados a actividades 
+CREATE VIEW detalles AS
+select id actividad, consecutive consecutivo, date_expenditure fecha, type_expenditure tipo, value valor, is_iva iva, status estatus
+  from kexm01t
+order by date_expenditure;
+
+-- Extracción de totales por actividad registrada
+CREATE VIEW totales AS
+select id, sum(value) importe, count(consecutive) registros
+  from kexm01t
+group by id;
+
+-- Genera las funciones de trabajo.
+
+-- calcula el usuario que realiza el enlace
+create function getUser()
+    returns char(12) deterministic
+return substring(user(),1,instr(user(),'@')-1);
+
+-- calcula el ultimo registro de gasto
+create function getLastConsecutive(actividad char(36))
+    returns int deterministic
+return (select max(consecutive) from kexm01t where id=actividad);
+
+-- calcula la descripcion de un codigo de elemento del catalogo
+create function getDescription(tabla varchar(9), codigo varchar(6))
+       returns varchar(100) deterministic
+return (select dselem from ktcm00t where cdtabla = tabla and cdelem = codigo);
+
+-- Inserta datos de catalogo
+INSERT INTO ktcm00t values ('catgral', 'tipact', 'Tipos de actividad','admin','carga.inicial',current_timestamp);
+INSERT INTO ktcm00t values ('catgral', 'tipgto', 'Tipos de gasto','admin','carga.inicial',current_timestamp);
+
+INSERT INTO ktcm00t values ('cattipact', 'T', 'Tarea','admin','carga.inicial',current_timestamp);
+INSERT INTO ktcm00t values ('cattipact', 'P', 'Tarea de proyecto','admin','carga.inicial',current_timestamp);
+INSERT INTO ktcm00t values ('cattipact', 'M', 'Reuni&oacute;n','admin','carga.inicial',current_timestamp);
+
+INSERT INTO ktcm00t values ('cattipgto', 'H', 'Hospedaje','admin','carga.inicial',current_timestamp);
+INSERT INTO ktcm00t values ('cattipgto', 'A', 'Alimentaci&oacute;n','admin','carga.inicial',current_timestamp);
+INSERT INTO ktcm00t values ('cattipgto', 'T', 'Transportaci&oacute;n  Aerea','admin','carga.inicial',current_timestamp);
+INSERT INTO ktcm00t values ('cattipgto', 'G', 'Gasolina','admin','carga.inicial',current_timestamp);
+INSERT INTO ktcm00t values ('cattipgto', 'D', 'Propina','admin','carga.inicial',current_timestamp);
+INSERT INTO ktcm00t values ('cattipgto', 'P', 'Estacionamiento','admin','carga.inicial',current_timestamp);
+INSERT INTO ktcm00t values ('cattipgto', 'V', 'Diversos','admin','carga.inicial',current_timestamp);
+
+INSERT INTO ktcm00t values ('catestgto', 'O', 'Abierto','admin','carga.inicial',current_timestamp);
+INSERT INTO ktcm00t values ('catestgto', 'P', 'Pendiente','admin','carga.inicial',current_timestamp);
+INSERT INTO ktcm00t values ('catestgto', 'L', 'Liquidado','admin','carga.inicial',current_timestamp);
+
+INSERT INTO ktcm00t values ('catestact', 'O', 'Abierto','admin','carga.inicial',current_timestamp);
+INSERT INTO ktcm00t values ('catestact', 'P', 'Pendiente','admin','carga.inicial',current_timestamp);
+INSERT INTO ktcm00t values ('catestact', 'L', 'Liquidado','admin','carga.inicial',current_timestamp);
