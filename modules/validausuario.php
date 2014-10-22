@@ -17,14 +17,13 @@ if ($es_cerrar=="true") {
         $_SESSION['cuenta'] = $usuario;
         $_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
         $_SESSION['sesion'] = session_id();
-        print("HEY !!!");
-        $fecha = new DateTime();
-//        $fecha = getdate();
+//        $fecha = new DateTime();
+        $fecha = getdate();
 ?>
 <script language="javascript" type="text/javascript">alert("chingon");</script>
         <?php
-        $fecha->format('Y-m-d H:i:sP');
-        $_SESSION['inicio'] = $fecha;
+        //$fecha->format('Y-m-d H:i:sP');
+        $_SESSION['inicio'] = $fecha["year"]."-".$fecha["mon"]."-".$fecha["mday"]." ".$fecha["hours"].":".$fecha["minutes"].":".$fecha["seconds"];
         $_SESSION['es_cerrar'] = "false";
         ?>
 <script language="javascript" type="text/javascript">
