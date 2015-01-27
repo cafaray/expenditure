@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Administrador de calendario y galerias</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/sunny/jquery-ui.css">
+        <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+        <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+        <style>
+            body {
+                font-family:  "Verdana", "Helvetica", "Trebuchet MS","Arial", "sans-serif";
+                font-size: 85.5%;
+            }
+            label, input[text], select{ display:block; }
+            input.text { margin-bottom:12px; width:95%; padding: .4em; }
+            select { margin-bottom:12px; width:95%; padding: .4em; }
+            fieldset { padding:0; border:0; margin-top:25px; }
+            h2 { font-size: 1.2em; margin: .6em 0; }          
+            #login{width: 90%;margin-top: 10%; border: silver 0px solid;padding: 10px}
+            #logo{width: 90%;position: absolute;top: 0px;left: 0px;}
+        </style>
+        <script>
+            $(function () {
+                $("#enviar").button({
+                    text: true,
+                    icons: {primary: "ui-icon-locked"}
+                }).click(function (event) {
+                    var frm = $("#FORM_SEND_REQUEST");
+                    frm.submit();
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="login">
+            <div id="logo">
+            <a href="http://www.casadelpastelero.com"><img src="images/banner_logo.png" width="80%" style="text-align: center" alt="LOGO" /></a>
+            </div>
+            <form id="FORM_SEND_REQUEST" action="cmd/default.php" method = "POST">
+            <table align="center">
+                <tr>
+                    <th colspan="2"><h2>Inicio de sesi&oacute;n</h2></th>
+                </tr> 
+                <tr>
+                    <td>
+                        Usuario:
+                    </td>
+                    <td>
+                        <input type="text" id="usuario" name="usuario" maxlength="16" class="ui-corner-br" />
+                    </td>
+                </tr>    
+                <tr>
+                    <td>
+                        Contrase&ntilde;a:
+                    </td>
+                    <td>
+                        <input type="password" id="contrasenia" name="contrasenia" maxlength="16" class="ui-corner-br" />
+                    </td>
+                </tr>    
+                <tr>
+                    <td colspan="2" style="text-align: right">
+                        <a id="enviar">Acceder</a>
+                    </td>
+                </tr>    
+            </table>
+                </form>
+            </div>
+    </body>
+</html>

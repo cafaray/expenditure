@@ -1,9 +1,9 @@
 <?php
 $_CONFIG = array(
-        'usuario' => "crm_biotecsa",
-        'contrasenia' => "bio11crm",
+        'usuario' => "sysadmin",
+        'contrasenia' => "sys.admin#15#",
         'servidor' => "localhost",
-        'datos' => "crm_biotecsa",
+        'datos' => "casadelpastel",
 );
 
 function obtieneConexion() {
@@ -28,7 +28,6 @@ function liberaConexion($myhandle) {
     }
 }
 function validaUsuario($usuario,$contrasenia,$grupo = 0) {
-    //print "validaUsuario:::";
     $mysql = "select count(user_name) ";
     $mysql.= "from users ";
     $mysql.= "where user_name = '$usuario' ";
