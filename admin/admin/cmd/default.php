@@ -1,4 +1,5 @@
 <?php
+    session_start();
     include '../model/conexion.php';
     $usuario = $_REQUEST['usuario'];
     $contrasenia = $_REQUEST['contrasenia'];

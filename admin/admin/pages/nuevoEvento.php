@@ -1,3 +1,4 @@
+<?php session_start();?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -24,18 +25,23 @@
         </style>
         <script>
             $(function (){
+                var titulo = $("#titulo"),
+                finicio = $("#finicio"),
+                ffin = $("#ffin"),
+                cmd = $("#cmd");
+                
                 $("#finicio").datepicker();
                 $("#ffin").datepicker();
-                $("#registrar").button().click(function (){
-                    alert("Registrar nuevo evento.");
+                $("#registrar").button().click(function (){                    
                     $.ajax({
                         url: '../cmd/eventos.php',
                         type: 'POST',
-                        data: {cmd: cmd, valor: mes+anio},
+                        data: {cmd: cmd.val(), titulo:titulo.val(), inicio: finicio.val(), fin:ffin.val()},
                         cache: false,
-                        dataType: "json",
+                        dataType: "text",
                         async: false,
                         success: function(data) {
+                            alert(data);
                             console.info(data);                            
                         },
                         error: function(data) {
@@ -50,7 +56,8 @@
         </script>
     </head>
     <body>
-        <form id="FORM_NEW_EVENT" method="POST">
+        <form id="FORM_NEW_EVENT" method="POST" enctype="multipart/form-data">
+            <input type="hidden" id="cmd" value="<?php echo "registra-evento"?>" name="cmd" />
             <label>Titulo:</label>
             <input type="text" name="titulo" id="titulo" value=""class="text ui-corner-tl" />
             <label>Fecha inicio:</label>
@@ -60,7 +67,6 @@
             <label>Archivo:</label>
             <input type="file" name="archivo" id="archivo" value=""class="text ui-corner-tl" />
             <a id="cancelar">Cancelar</a>&nbsp;&nbsp;&nbsp;&nbsp;<a id="registrar">Registrar</a>
-                
         </form>
     </body>
 </html>

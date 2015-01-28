@@ -1,3 +1,4 @@
+<?php session_start();?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -40,7 +41,26 @@
                     event.preventDefault();
                     cambiaFecha();
                 });
-
+                $(".editar").button({
+                    icons:{
+                       primary:"ui-icon-pencil"                       
+                   },
+                   text:false
+                }).click(function (event){
+                    event.preventDefault();
+                    alert("cmd: "+$(this).attr("cmd"));
+                    var cmd = $(this).attr("cmd");
+                    location.replace("nuevoEvento.php?evento="+cmd);
+                };
+                $(".eliminar").button({
+                    icons:{
+                       primary:"ui-icon-trash"                       
+                   },
+                   text:false
+                }).click(function (event){
+                    event.preventDefault();
+                    alert("cmd: "+$(this).attr("cmd"));
+                };
                 
             });
             function cambiaFecha(){
@@ -101,8 +121,8 @@
                     <th>Fecha inicio</th>
                     <th>Fecha termino</th>
                     <th>Archivo</th>
-                    <th><a id="editar">&nbsp;</a></th>
-                    <th><a id="eliminar">&nbsp;</a></th>
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
                 </tr>
                 <?php
                     if($registros) {
@@ -115,8 +135,8 @@
                     <td><?php echo $regsitro[2];?></td>
                     <td><?php echo $regsitro[3];?></td>
                     <td><?php echo $regsitro[4];?></td>
-                    <td><?php echo $regsitro[0];?></td>
-                    <td><?php echo $regsitro[0];?></td>
+                    <td><a class="editar" cmd="<?php echo $regsitro[0];?>">Editar</a></td>
+                    <td><a class="eliminar" cmd = "<?php echo $regsitro[0];?>">Eliminar</a></td>
                 </tr>
                 <?php
                         }

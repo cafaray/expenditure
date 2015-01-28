@@ -45,7 +45,7 @@ function validaUsuario($usuario,$contrasenia) {
         }else {
             
             $myrow = mysql_fetch_array($myrst);
-            $exito = ($myrow[0]>0)?1:0;            
+            $exito = ($myrow[0]>0)?1:0; 
             //print "libera: $liberaconexion:$exito:".$myrow[0];
             //$liberaconexion = liberaConexion($myhandle);
             return $exito;
