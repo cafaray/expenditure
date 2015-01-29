@@ -2,10 +2,10 @@
 include 'casadelpastel.php';
 
 $_CONFIG = array(
-        'usuario' => "sysadmin",
+        'usuario' => "620303_cdp4390", //sysadmin",
         'contrasenia' => "sys.admin#15#",
-        'servidor' => "localhost",
-        'datos' => "casadelpastel",
+        'servidor' => "mysql51-013.wc2.dfw1.stabletransit.com",//localhost",
+        'datos' => "620303_casadelpastel",
 );
 
 function obtieneConexion() {
@@ -62,18 +62,19 @@ function registraEvento($evento, $fechaInicio, $fechaFin, $archivo, $sesion){
     $handle = obtieneConexion();
     if(!$handle){
         print enviaAlerta(mysql_error());
-        return "";
+        echo "-1";
     } else {        
         $sql = "INSERT INTO jcem10t VALUES (MD5(CONCAT('$fechaInicio',CURRENT_TIMESTAMP)),'$evento','$fechaInicio','$fechaFin','$archivo','$sesion')";
+        echo "sql = $sql";
         $myrst = mysql_query($sql, $handle);
         if($myrst) {
             //liberaConexion($handle);
             //echo "insertado $myrst";
-            return "1";
+            echo "1";
         }else {
             //liberaConexion($handle);
             print enviaAlerta(mysql_error($handle));
-            return "-1";
+            //echo "-1";
         }
     }
 }

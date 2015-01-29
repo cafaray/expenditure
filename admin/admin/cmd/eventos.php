@@ -54,7 +54,7 @@ if($cmd==  md5("registra-evento".session_id())){
 
         if(move_uploaded_file($_FILES['archivo']['tmp_name'], $UploadDirectory.$NewFileName )) {
             // do other stuff
-            die("Archivo cargado: $NewFileName");
+            die("Archivo cargado:$NewFileName");
         } else {
             die('Error cargando el archivo');
         }
