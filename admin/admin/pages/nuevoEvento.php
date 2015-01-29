@@ -28,21 +28,66 @@
                 var titulo = $("#titulo"),
                 finicio = $("#finicio"),
                 ffin = $("#ffin"),
-                cmd = $("#cmd");
+                cmd = $("#cmd"),
+                file = $("#file");
                 
-                $("#finicio").datepicker();
-                $("#ffin").datepicker();
-                $("#registrar").button().click(function (){                    
+                $("#finicio").datepicker({
+                    dateFormat:"dd-mm-yy",
+                    minDate: 0,
+                    maxDate: "+2M +1D",
+                    onClose: function(selectedDate) {
+                        $("#ffin").datepicker("option", "minDate", selectedDate);
+                    }
+                });
+                $("#ffin").datepicker({
+                    dateFormat:"dd-mm-yy",
+                    maxDate: "+2M +1D"
+                });
+                $("#registrar").button().click(function (){  
+                    var data = new FormData($("#FORM_NEW_EVENT")[0]);
+                    console.info(data);
+                    $.ajax({
+                        url: '../cmd/eventos.php?files',
+                        type: 'POST',
+                        data: data,
+                        cache: false,
+                        processData: false, // Don't process the files
+                        contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+                        success: function(data) {
+                            alert(data);
+                            var nombre = data;
+                            console.log(nombre.indexOf(":"));
+                            if(nombre.indexOf(":")>0){
+                                nombre =  nombre.substring(nombre.indexOf(":")+1);
+                                console.log(nombre);
+                                file.val(nombre);
+                            }                            
+                            $("#FORM_NEW_EVENT").submit();
+                        },
+                        error: function(data) {
+                            console.log(data);
+                        }
+                    });
+                    
+                });
+                $("#FORM_NEW_EVENT").submit(function (){   
+                    //console.log(titulo.val()+finicio.val()+ffin.val()+file.val());
+                    //data = serialize()
                     $.ajax({
                         url: '../cmd/eventos.php',
                         type: 'POST',
-                        data: {cmd: cmd.val(), titulo:titulo.val(), inicio: finicio.val(), fin:ffin.val()},
-                        cache: false,
+                        data: {cmd: "almacenar", titulo:titulo.val(), inicio: finicio.val(), fin:ffin.val(), archivo:file.val()},
+                        //cache: false,
                         dataType: "text",
-                        async: false,
+                        async: true,
                         success: function(data) {
-                            alert(data);
+                            if(data=="1"){
+                                alert("Se registro correctamente el evento.");                                
+                            }else{
+                                alert(data);
+                            }
                             console.info(data);                            
+                            location.reload();
                         },
                         error: function(data) {
                             alert(data);
@@ -56,8 +101,12 @@
         </script>
     </head>
     <body>
+        <?php
+        require '../cmd/validasesion.php';
+        ?>
         <form id="FORM_NEW_EVENT" method="POST" enctype="multipart/form-data">
-            <input type="hidden" id="cmd" value="<?php echo "registra-evento"?>" name="cmd" />
+            <input type="hidden" id="cmd" value="<?php echo md5("registra-evento".session_id())?>" name="cmd" />
+            <input type="hidden" id="file" value="<?php echo md5("archivo-evento".session_id())?>" name="file" />
             <label>Titulo:</label>
             <input type="text" name="titulo" id="titulo" value=""class="text ui-corner-tl" />
             <label>Fecha inicio:</label>

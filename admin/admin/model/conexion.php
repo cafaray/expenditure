@@ -42,10 +42,15 @@ function validaUsuario($usuario,$contrasenia) {
         if (!$myrst) {
             print enviaAlerta(mysql_error());
             return null;
-        }else {
-            
+        }else {            
             $myrow = mysql_fetch_array($myrst);
             $exito = ($myrow[0]>0)?1:0; 
+            if($exito==1){
+                session_start();
+                $_SESSION['cuenta'] = $usuario;
+                $_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
+                $_SESSION['sesion'] = session_id();
+            }
             //print "libera: $liberaconexion:$exito:".$myrow[0];
             //$liberaconexion = liberaConexion($myhandle);
             return $exito;
@@ -53,21 +58,22 @@ function validaUsuario($usuario,$contrasenia) {
     }
 }
 
-function registraEvento($evento, $fechaInicio, $fechaFin, $archivo){
+function registraEvento($evento, $fechaInicio, $fechaFin, $archivo, $sesion){
     $handle = obtieneConexion();
     if(!$handle){
         print enviaAlerta(mysql_error());
         return "";
-    } else {
-        $sql = "INSERT INTO jcem10t VALUES (MD5(CONCAT('$fechaInicio',CURRENT_TIMESTAMP)),'$evento','$fechaInicio','$fechaFin','$archivo')";
-        $myrst = mysql_query($sql,$handle);
+    } else {        
+        $sql = "INSERT INTO jcem10t VALUES (MD5(CONCAT('$fechaInicio',CURRENT_TIMESTAMP)),'$evento','$fechaInicio','$fechaFin','$archivo','$sesion')";
+        $myrst = mysql_query($sql, $handle);
         if($myrst) {
             //liberaConexion($handle);
+            //echo "insertado $myrst";
             return "1";
         }else {
             //liberaConexion($handle);
             print enviaAlerta(mysql_error($handle));
-            return null;
+            return "-1";
         }
     }
 }
@@ -98,15 +104,24 @@ function eliminaEvento($identificador){
         print enviaAlerta(mysql_error());
         return "";
     } else {
-        $sql = "DELETE FROM jcem10t WHERE idcaleve = '$identificador';";
-        $myrst = mysql_query($sql,$handle);
-        if($myrst) {
-            //liberaConexion($handle);
-            return "1";
-        }else {
-            //liberaConexion($handle);
-            print enviaAlerta(mysql_error($handle));
-            return null;
+        $sql = "SELECT idcaleve, dsfileve FROM jcem10t WHERE idcaleve = '$identificador';";        
+        if($myrst = mysql_query($sql,$handle)) {
+            if($myrow = mysql_fetch_array($myrst)){ 
+                $archivo = $myrow[1];
+                $archivo = "../uploads/".$archivo;
+                echo "unlink($archivo)";
+                unlink($archivo);
+            }
+            $sql = "DELETE FROM jcem10t WHERE idcaleve = '$identificador';";
+            $myrst = mysql_query($sql,$handle);
+            if($myrst) {
+                //liberaConexion($handle);
+                return "1";
+            }else {
+                //liberaConexion($handle);
+                print enviaAlerta(mysql_error($handle));
+                return -1;
+            }
         }
     }
 }
@@ -123,9 +138,11 @@ function consultaEvento($mes, $anio) {
             while($myrow = mysql_fetch_array($myrst)) {
                 $registros[$x]['identificador'] = $myrow[0];
                 $registros[$x]['evento'] = $myrow[1];
-                $registros[$x]['fechaInicio'] = $myrow[2];
-                $registros[$x]['fechaFin'] = $myrow[3];
-                $registros[$x]['archivo'] = $myrow[4];
+                $date = date_create($myrow[2]);
+                $registros[$x]['fechaInicio'] = date_format($date,'d-m-Y');
+                $date = date_create($myrow[3]);
+                $registros[$x]['fechaFin'] = date_format($date,'d-m-Y');
+                $registros[$x]['archivo'] = $myrow[4];                
                 $x++;
             }
             return $registros;

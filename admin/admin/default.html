@@ -25,13 +25,13 @@
         $(function () {
             $( "#menu" ).menu();
             $("#eventos").click(function (event) {
-                alert("contiene: "+$("#iworkarea").attr("src"));
+                
                 $("#iworkarea").attr("src", "pages/eventos.php");
-                alert("Ahora contiene: "+$("#iworkarea").attr("src"));
+                
             });
             $("#cerrar").click(function() {
-                if(confirm("Seguro que quiere salir de la edición?")){
-                    location.replace("index.html");
+                if(confirm("Seguro que quiere cerrar la sesión?")){
+                    location.replace("cmd/cierra.php?cerrar=1");
                 } else {
                     //nothing todo
                 }

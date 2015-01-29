@@ -22,6 +22,8 @@
             #workarea{width: 75%;height: 400px;margin-top: 5px; border: black 2px solid;padding: 5px;display: block;float: left}
             #iworkarea{width: 100%;height: 100%;border: 1px solid silver;margin: 5px;}
             #listado{width: 90%;margin-left: 5px;border: 1px sandybrown inset;height: 300px;}
+            .par{background: #fcefa1; color: #915608; height: 30px;}
+            .non{background: #fcefa1; color: #0a0a0a; height: 30px;}
         </style>
         <script>
             $(function (){
@@ -51,7 +53,7 @@
                     alert("cmd: "+$(this).attr("cmd"));
                     var cmd = $(this).attr("cmd");
                     location.replace("nuevoEvento.php?evento="+cmd);
-                };
+                });
                 $(".eliminar").button({
                     icons:{
                        primary:"ui-icon-trash"                       
@@ -59,13 +61,34 @@
                    text:false
                 }).click(function (event){
                     event.preventDefault();
-                    alert("cmd: "+$(this).attr("cmd"));
-                };
+                    //alert("cmd: "+$(this).attr("cmd"));
+                    if(confirm("Estas seguro de eliminar este evento?")){
+                        var cmd = $(this).attr("cmd");
+                        $.ajax({
+                            url: '../cmd/eventos.php',
+                            type: 'POST',
+                            data: {cmd: cmd},
+                            dataType: "text",
+                            async: true,
+                            success: function(data) {
+                                //alert(data);
+                                console.info(data);
+                                if(data=="1"){
+                                    alert("Se ha eliminado con exito el evento.");
+                                } else {
+                                    alert(data);
+                                }
+                                location.reload();
+                            },
+                            error: function(data) {
+                                alert(data);
+                            }
+                        });
+                    }
+                });
                 
             });
-            function cambiaFecha(){
-                    alert($("#cmd").val());
-                    $("#cmd").val("eventos-consulta");
+            function cambiaFecha(){                    
                     $("#FORM_SHOW_EVENTS").submit();
                 }
         </script>
@@ -73,7 +96,9 @@
     <body>
         <div>
 <?php
+require '../cmd/validasesion.php';
     include '../model/conexion.php';
+    
     echo "<!-- Listado de eventos -->";
     date_default_timezone_set("America/Mexico_City");
     if($_POST['mes']){        
@@ -120,23 +145,24 @@
                     <th>Evento</th>
                     <th>Fecha inicio</th>
                     <th>Fecha termino</th>
-                    <th>Archivo</th>
                     <th>&nbsp;</th>
+                    <!-- <th>&nbsp;</th> -->
                     <th>&nbsp;</th>
                 </tr>
                 <?php
                     if($registros) {
                         $x = 0;
                         foreach($registros as $registro){
+                            $parnon = ($x%2)==1?"par":"non";
                 ?>
-                <tr>
+                <tr class="<?php echo $parnon?>"> 
                     <td><?php echo ++$x;?></td>
-                    <td><?php echo $regsitro[1];?></td>
-                    <td><?php echo $regsitro[2];?></td>
-                    <td><?php echo $regsitro[3];?></td>
-                    <td><?php echo $regsitro[4];?></td>
-                    <td><a class="editar" cmd="<?php echo $regsitro[0];?>">Editar</a></td>
-                    <td><a class="eliminar" cmd = "<?php echo $regsitro[0];?>">Eliminar</a></td>
+                    <td><?php echo $registro['evento'];?></td>
+                    <td><?php echo $registro['fechaInicio'];?></td>
+                    <td><?php echo $registro['fechaFin'];?></td>
+                    <td><a href="../uploads/<?php echo $registro['archivo'];?>" target="_blank"><img src="../uploads/<?php echo $registro['archivo'];?>" alt="No se encontro la imaen" width="40" /></a></td>
+                    <!-- <td><a class="editar" cmd="<?php echo md5("edita-evento".session_id()).$registro['identificador'];?>">Editar</a></td> -->
+                    <td><a class="eliminar" cmd = "<?php echo md5("elimina-evento".session_id()).$registro['identificador'];?>">Eliminar</a></td>
                 </tr>
                 <?php
                         }
